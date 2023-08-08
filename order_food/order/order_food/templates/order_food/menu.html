@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    {% load comments %}
+    <head>
+    <meta charset="UTF-8">
+    <title>menu</title>
+</head>
+<body>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<ul>
+    {% for food in foods %}    
+        <li>
+            {{ food.name }}
+            <ul>
+                <li>{{ food.price }}</li>
+                <li>{{ food.description }}</li>
+            </ul>
+        </li>
+        {% get_comment_list for food as comment_list %}
+
+        {% for comment in comment_list %}
+            <p>{{ comment.submit_date }} - {{ comment.user }}</p>
+            <p>     {{ comment.comment }}</p>    
+        {% endfor %}
+        {% if user.is_authenticated %}
+        {% get_comment_form for food as form %}
+        <table>
+            <form action="{% comment_form_target %}" method="post">
+                {% csrf_token %}
+
+                {% for hidden_field in form.hidden_fields %}
+                    {{ hidden_field }}
+                {% endfor %}
+                
+                {{ form.comment }}
+                <tr>
+                    <td colspan="2">
+                      <input type="hidden" name="next" value="{% url 'menu' %}">
+                      <input type="submit" name="submit" value="Post" >
+                    </td>
+                </tr>
+            </form>
+        </table>
+        {% else %}
+            <p>"Please log in to leave a comment."</p>
+        {% endif %}
+    {% endfor %}
+</ul>
+</body>
+</html>
